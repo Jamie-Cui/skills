@@ -1,0 +1,4 @@
+interface:
+  display_name: "Research Draft Assistant"
+  short_description: "Audit drafts, find gaps, and support research writing"
+  default_prompt: "Use $research to review, audit, or improve the research documents in the current directory."

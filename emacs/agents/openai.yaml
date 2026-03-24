@@ -1,0 +1,4 @@
+interface:
+  display_name: "Emacs Debugger"
+  short_description: "Debug Emacs config and package development in a live session"
+  default_prompt: "Use $emacs to debug an Emacs package or configuration issue in the running session."
