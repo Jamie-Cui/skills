@@ -4,13 +4,29 @@ This repository contains reusable Codex skills: small, focused instruction sets 
 
 ## Layout
 
-- `emacs/` — Emacs-focused workflow plus helper code in `agent-skills-emacs.el`
-- `project-plan/` — guidance for maintaining project plans in central org files
-- `project-summary/` — instructions for generating repository summaries
-- `research*/` — research, literature, review, and reporting workflows
-- `.system/` — internal utility skills such as `openai-docs`, `skill-creator`, and `skill-installer`
+- `skills/emacs/` — Emacs-focused workflow plus helper code in `agent-skills-emacs.el`
+- `skills/project-plan/` — guidance for maintaining project plans in central org files
+- `skills/project-summary/` — instructions for generating repository summaries
+- `skills/research*/` — research, literature, review, and reporting workflows
+- `.system/` — local/internal utility skills; this directory is ignored by git
 
 Most skills are centered around a `SKILL.md` file. Some also include support directories such as `agents/`, `references/`, or `evals/`.
+
+## Installation
+
+Install from GitHub with the Skills CLI:
+
+```sh
+npx skills add jamie-cui/skills
+```
+
+Useful variants:
+
+```sh
+npx skills add jamie-cui/skills --list
+npx skills add jamie-cui/skills --all
+npx skills add jamie-cui/skills --skill emacs
+```
 
 ## Working With This Repo
 
@@ -21,10 +37,10 @@ Most skills are centered around a `SKILL.md` file. Some also include support dir
 
 ## Quick Examples
 
-- Inspect available skill files: `rg --files -g '*/SKILL.md'`
+- Inspect available skill files: `rg --files -g 'SKILL.md' skills`
 - Review recent changes: `git log --oneline`
-- Explore the Emacs helper skill: `sed -n '1,120p' emacs/SKILL.md`
+- Explore the Emacs helper skill: `sed -n '1,120p' skills/emacs/SKILL.md`
 
 ## Contributing
 
-When adding a skill, create a dedicated directory with a `SKILL.md`, keep the scope narrow, and document any required helper files or references locally. Prefer simple Markdown instructions over tool- or platform-specific assumptions unless the skill is explicitly specialized.
+When adding a skill, create a dedicated directory under `skills/` with a `SKILL.md`, keep the scope narrow, and document any required helper files or references locally. Prefer simple Markdown instructions over tool- or platform-specific assumptions unless the skill is explicitly specialized.
