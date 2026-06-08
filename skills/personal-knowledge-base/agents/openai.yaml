@@ -1,0 +1,7 @@
+interface:
+  display_name: "Personal Knowledge Base"
+  short_description: "Search and update personal org notes"
+  default_prompt: "Use $personal-knowledge-base to search or update my personal knowledge base."
+
+policy:
+  allow_implicit_invocation: true
