@@ -1,0 +1,178 @@
+#+title: Personal agent skills
+#+startup: showall
+
+This repository is the source of truth for the personal skills deployed to
+~~/.agents/skills/~.  Edit the sources in ~~/opt/skills/skills/~ and use this
+repository's GNU Stow Makefile to manage their links.
+
+* Quick start
+
+Requirements: GNU Make and GNU Stow.  From an existing checkout:
+
+#+begin_src bash
+cd ~/opt/skills
+make list
+make dry-run
+make restow
+#+end_src
+
+~make dry-run~ previews the links without changing the installation.  If the
+target directory does not exist, it previews against a temporary directory;
+~make restow~ creates the real target when deploying.
+
+* Repository layout
+
+#+begin_example
+skills/
+├── AGENTS.md               Maintenance instructions for agents
+├── LICENSE                 Repository license
+├── Makefile                Stow deployment and verification
+├── README.org              This guide
+└── skills/                 One Stow package containing all managed skills
+    ├── emacs/
+    │   ├── SKILL.md
+    │   ├── agent-skills-emacs.el
+    │   └── references/
+    ├── org-authoring/
+    │   ├── SKILL.md
+    │   ├── references/
+    │   └── scripts/
+    └── ...
+#+end_example
+
+Each skill is a directory centered on ~SKILL.md~.  Supporting scripts,
+references, assets, evals, licenses, and agent metadata stay beside the skill
+that owns them.  The root metadata is not deployed.
+
+On a clean deployment, each installed skill is a directory link, for example:
+
+#+begin_example
+~/.agents/skills/emacs -> ~/opt/skills/skills/emacs
+#+end_example
+
+The Makefile operates on all managed skills together.  Independently installed
+skills with other names remain in the target directory.  A conflicting file
+or link is reported by Stow instead of being overwritten.  Inspect the
+reported paths before resolving a conflict; do not use ~stow --adopt~.
+
+* Skill directory
+
+Follow each entrypoint for its full scope and invocation rules.  The table
+summarizes the skills present in this checkout; ~make list~ lists their names.
+
+| Skill | Purpose |
+|-------+---------|
+| [[file:skills/allow-breaking-change/SKILL.md][allow-breaking-change]] | Explicitly allow justified breaking changes for the session. |
+| [[file:skills/architecture-reviewer/SKILL.md][architecture-reviewer]] | Review system architecture, boundaries, state, and failure behavior. |
+| [[file:skills/crypto-code-implementation/SKILL.md][crypto-code-implementation]] | Implement, optimize, and validate cryptographic code against its specification. |
+| [[file:skills/crypto-code-reviewer/SKILL.md][crypto-code-reviewer]] | Independently audit cryptographic implementation security obligations. |
+| [[file:skills/crypto-research-ai-acknowledgements/SKILL.md][crypto-research-ai-acknowledgements]] | Draft or review factual disclosures of AI assistance in research. |
+| [[file:skills/crypto-research-artifacts/SKILL.md][crypto-research-artifacts]] | Prepare and validate reproducible research artifacts. |
+| [[file:skills/crypto-research-benchmarking/SKILL.md][crypto-research-benchmarking]] | Design, run, and audit cryptographic experiments and measurements. |
+| [[file:skills/crypto-research-correlation-accounting/SKILL.md][crypto-research-correlation-accounting]] | Define correlation counts, expansion ratios, and throughput units. |
+| [[file:skills/crypto-research-framing/SKILL.md][crypto-research-framing]] | Develop research ideas into precise questions and mathematical next steps. |
+| [[file:skills/crypto-research-reviewer/SKILL.md][crypto-research-reviewer]] | Review literature, novelty, proofs, threat models, and evaluations. |
+| [[file:skills/crypto-research-writer/SKILL.md][crypto-research-writer]] | Write and revise cryptography and security papers or research notes. |
+| [[file:skills/elisp/SKILL.md][elisp]] | Implement and review Emacs Lisp with explicit failure and load behavior. |
+| [[file:skills/emacs/SKILL.md][emacs]] | Inspect, debug, and refresh a running Emacs session. |
+| [[file:skills/grill-me/SKILL.md][grill-me]] | Interview the user to resolve a plan or design. |
+| [[file:skills/grill-with-docs/SKILL.md][grill-with-docs]] | Stress-test a design while maintaining terminology and decision records. |
+| [[file:skills/i-have-adhd/SKILL.md][i-have-adhd]] | Adapt communication to an explicitly enabled ADHD-friendly mode. |
+| [[file:skills/kiss/SKILL.md][kiss]] | Simplify designs and implementations while preserving required behavior. |
+| [[file:skills/org-authoring/SKILL.md][org-authoring]] | Write, convert, and check valid Org documents. |
+| [[file:skills/repo-wiki/SKILL.md][repo-wiki]] | Create and maintain source-grounded Org wikis alongside domain glossaries and ADRs. |
+| [[file:skills/submit-pr/SKILL.md][submit-pr]] | On explicit invocation, commit, push, and submit a pull request. |
+| [[file:skills/unixify/SKILL.md][unixify]] | Apply Unix composition, focused responsibilities, and inspectable interfaces. |
+| [[file:skills/wayfinder/SKILL.md][wayfinder]] | On explicit invocation, map a large effort into decision tickets. |
+
+* Deployment commands
+
+Run these commands from the repository root, or use
+~make -C ~/opt/skills <target>~ from another directory.
+
+| Command | Effect |
+|---------+--------|
+| ~make~ or ~make help~ | Show available commands and the selected target directory. |
+| ~make list~ | List source directories containing a ~SKILL.md~ entrypoint. |
+| ~make dry-run~ | Preview deployment without modifying the target. |
+| ~make stow~ or ~make bootstrap~ | Install the managed skill links. |
+| ~make restow~ | Refresh this repository's links. |
+| ~make unstow~ | Remove all links owned by this repository. |
+| ~make verify~ | Exercise deployment, removal, and conflict checks in a temporary home. |
+
+~TARGET~ names the exact directory that receives skill links.  Without a
+~TARGET~ override, the destination is ~.agents/skills/~ below ~DEPLOY_HOME~,
+which defaults to the current home directory.  Use the same override for
+preview, deployment, and removal:
+
+#+begin_src bash
+make dry-run TARGET=/path/to/agent/skills
+make restow TARGET=/path/to/agent/skills
+make unstow TARGET=/path/to/agent/skills
+
+# Alternatively, select a different home directory:
+make dry-run DEPLOY_HOME=/path/to/home
+make restow DEPLOY_HOME=/path/to/home
+#+end_src
+
+* Maintaining skills
+
+** Edit or add
+
+Edit files under ~skills/<name>/~.  Existing directory links expose content
+changes directly, so a content-only edit does not need a new deployment.
+For a new skill, create its ~SKILL.md~ and only the supporting resources it
+needs.  Use a lowercase, hyphenated name, update the directory table above,
+then run ~make dry-run~ and ~make restow~.
+
+Preserve helper scripts' executable permissions.  Keep resource paths relative
+to the owning skill instead of pinning them to a checkout location.  Generated
+bytecode, caches, and backups are ignored by Git and are not source files.
+
+** Rename, remove, or relocate
+
+Unstow before removing or moving source directories, while Stow can still
+identify the links it owns:
+
+#+begin_src bash
+make dry-run
+make unstow
+# Rename or remove the source directory, then update this guide's skill table.
+make dry-run
+make restow
+#+end_src
+
+This briefly removes all managed skill links.  Independently installed skills
+remain in place.  To move the entire checkout, unstow at its old location,
+move it, then preview and deploy from its new location.
+
+** Verify
+
+#+begin_src bash
+make verify
+emacs --batch -Q -l skills/org-authoring/scripts/check_org.el -- README.org
+#+end_src
+
+Use the installed Emacs executable's absolute path if ~emacs~ is absent from
+~PATH~.  ~make verify~ checks the Stow lifecycle, preserves an independently
+installed skill, and verifies that a conflicting local file is rejected.  It
+does not test skill behavior.  For changed skills, also validate frontmatter,
+check referenced files, inspect rendered Markdown, and run the relevant helper
+checks.  See [[file:AGENTS.md][maintenance guidelines]] for repository conventions.
+
+* Relationship to dotfiles
+
+These skills were moved from ~~/opt/dotfiles/~ with their local edits intact.
+Dotfiles no longer contains their sources or deploys them; its bootstrap and
+restow commands manage tool configuration separately.
+
+On a machine that still uses the old dotfiles skill links, unstow that package
+using its old Makefile while the old source exists.  Then preview and deploy
+from this repository, verify the links point here, and remove the old source.
+If the old source is already gone, remove only links verified to point to it;
+preserve ordinary files and links owned by other installations.
+
+* License
+
+The original repository's [[file:LICENSE][license]] is retained.  Per-skill license
+files and notices remain alongside their resources.

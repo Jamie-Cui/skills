@@ -1,0 +1,4 @@
+interface:
+  display_name: "密码代码安全归约审查"
+  short_description: "生成形式化验证前的密码实现安全归约图与审查报告"
+  default_prompt: "使用 $crypto-code-reviewer 审查这个密码实现，生成带三态节点的安全归约图和规范化报告。"

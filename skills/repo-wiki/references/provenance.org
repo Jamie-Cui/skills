@@ -1,0 +1,25 @@
+#+title: Repo Wiki provenance
+
+* Upstream
+
+Adapted from [[https://github.com/langchain-ai/openwiki][LangChain OpenWiki]] at
+commit ~7c469e59584bfac3f97f5c32a67604de46805999~ (2026-10-13).
+The upstream MIT license and copyright notice are retained in
+[[file:../LICENSE][LICENSE]].
+
+Sources used:
+
+- [[https://github.com/langchain-ai/openwiki/blob/7c469e59584bfac3f97f5c32a67604de46805999/integrations/openwiki/SKILL.md][Host skill]]: evidence-based repository exploration, page quality, and focused updates.
+- [[https://github.com/langchain-ai/openwiki/blob/7c469e59584bfac3f97f5c32a67604de46805999/src/agent/repository-prompts.ts][Repository prompts]]: topic planning, cross-system navigation, and per-page research.
+- [[https://github.com/langchain-ai/openwiki/blob/7c469e59584bfac3f97f5c32a67604de46805999/skills/mermaid-diagrams/SKILL.md][Mermaid skill]]: source-grounded diagram selection and preservation during updates.
+
+* Local adaptation
+
+This skill uses the host agent's repository tools and writes Org documentation.
+It integrates with existing glossaries, ADRs, Emacs editing, and Org validation.
+It does not install OpenWiki or reproduce its MCP protocol, OKF metadata,
+Claims engine, source-version verification, durable page queue, or finalization.
+
+Org revision properties and source links are manual review aids. They do not
+provide OpenWiki's runtime guarantees. The skill does not manage an existing
+OpenWiki installation or its metadata; use the upstream workflow for that task.

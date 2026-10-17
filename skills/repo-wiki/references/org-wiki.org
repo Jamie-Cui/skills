@@ -1,0 +1,137 @@
+#+title: Writing and maintaining a repository wiki in Org
+
+* Fit the repository
+
+Prefer an existing Org documentation directory and navigation scheme. Otherwise
+start with ~docs/wiki/index.org~ and only the topic pages the request needs.
+Do not create empty categories or duplicate a README, glossary, or ADR.
+
+Use the project's existing domain language. A wiki explains how the current
+implementation behaves; an accepted ADR explains a decision and its trade-offs.
+Link the two and identify any disagreement. Existing Markdown domain documents
+remain valid link targets; creating an Org wiki does not require converting them.
+
+* Page shape
+
+Use a title, a short purpose, and meaningful headings. The following is a shape
+to adapt, not a required outline. Example source paths must be replaced with
+paths inspected in the target repository.
+
+#+begin_example
+#+title: Request processing
+
+How a request reaches its handler, which component owns its state, and where
+failures become visible.
+
+,* Entry and ownership
+
+The dispatcher selects a handler after authentication.
+See [[file:../../../src/server.py::dispatch][dispatch implementation]].
+
+,* Failure behavior
+
+Explain supported error paths and the relevant focused tests.
+
+,* Related context
+
+- [[file:../../../CONTEXT.org][Domain glossary]]
+- [[file:../operations/troubleshooting.org][Troubleshooting]]
+#+end_example
+
+* Source and navigation links
+
+- Resolve file links relative to the containing page, not the repository root.
+- Prefer a meaningful symbol search, heading search, or existing custom ID when
+  it is a better locator than a changing line number. Check that it resolves to
+  the intended definition, not merely another mention of the name.
+- For exact line evidence, use a locator such as
+  ~[[file:../../../src/server.py::42][Request dispatch]]~ and recheck it on update.
+  For a historical claim, use a commit-pinned source link when a suitable remote
+  is known; do not fabricate a hosting URL.
+- Use ~[[file:../index.org][Wiki index]]~ for a page, or
+  ~[[file:../index.org::*Common tasks][Common tasks]]~ for a heading. An existing
+  custom ID can be addressed with ~[[file:../index.org::#common-tasks][Common tasks]]~.
+- Keep descriptions plain text. Preserve existing ~ID~ and ~CUSTOM_ID~ values
+  and their incoming links; add stable IDs only where a cross-reference needs one.
+- Keep evidence close to the assertion it supports. Do not use a long unrelated
+  source list as a substitute for tracing the documented behavior.
+
+* Diagrams and commands
+
+Use an Org source block with the actual language. For diagrams, choose a
+~sequenceDiagram~ for component interactions, ~stateDiagram-v2~ for lifecycle,
+~erDiagram~ for entity relationships, or ~flowchart TD~ for branching flow.
+
+Keep every participant, state, relationship, and branch grounded in source.
+Prefer short labels, simple identifiers, and quoted flowchart labels containing
+punctuation. Use aliases for sequence participants with human-readable names.
+Avoid reserved keywords as identifiers and ambiguous delimiter characters in
+labels. Put long explanations in prose and give the diagram a caption.
+
+An illustrative block, shown here as literal Org:
+
+#+begin_example
+#+caption: A request reaches its handler after authentication.
+#+begin_src mermaid :eval never-export
+sequenceDiagram
+    participant Client
+    participant Gateway
+    participant Handler
+    Client->>Gateway: Send request
+    Gateway->>Gateway: Authenticate
+    Gateway->>Handler: Dispatch accepted request
+    Handler-->>Client: Return response
+#+end_src
+#+end_example
+
+Use the repository's renderer when one exists. An Org block alone does not
+install Mermaid support or produce an image. Keep source-only diagrams usable
+when no renderer is available and report that limitation. Do not change Emacs
+configuration, install Babel packages, or run source blocks merely to export
+the wiki. If images are explicitly needed, use the existing rendering workflow
+and keep generated assets beside the documentation according to its conventions.
+
+Preserve still-correct diagrams. When code changes invalidate a diagram, update
+it with the surrounding explanation. Avoid changing diagram syntax just to
+produce a diff.
+
+* Lightweight update baselines
+
+Prefer an established repository convention. For a new page, an optional Org
+property can record the full Git revision used to review its source evidence:
+
+#+begin_example
+#+title: Request processing
+#+property: REPO_WIKI_REV <full-reviewed-commit>
+#+end_example
+
+Replace the example marker with a resolved commit. This records a review
+baseline, not an automatic proof that facts remain true. Set or advance it only
+after checking the whole page and when its relevant source matches that commit.
+An edit to one section must retain the earlier baseline. If the page documents
+uncommitted source, retain the previous baseline or omit it for a new page and
+report that limitation. Documentation edits themselves need not prevent recording
+a baseline for unchanged source.
+
+For a known baseline, ~git diff --name-status BASE --~ includes tracked changes
+from that revision through the working tree. Inspect relevant staged and
+unstaged content, and use ~git ls-files --others --exclude-standard~ to discover
+new source files as appropriate. Apply the project's documentation exclusions.
+Do not use an unresolved or unrelated-history baseline as evidence of freshness.
+Without a usable baseline, read the current source for the requested topics.
+
+Keep baselines per page. Do not create a global last-success marker after a
+partial refresh, and do not add a separate state database or claim sidecars.
+Unchanged pages need no timestamp or metadata update.
+
+* Validation in an Org workflow
+
+Use the available org-authoring checker for markup and structure. Check both
+local paths and any search targets, because an existing file can still contain
+a broken heading or symbol link. Source/example block contents are illustrative
+or executable text, not document navigation to follow blindly.
+
+When exporting for inspection, disable Babel execution and preserve the source
+files. Validate Mermaid separately with an available parser. Markup validation,
+diagram parsing, and verification of documented behavior are distinct checks;
+report which ones actually ran.

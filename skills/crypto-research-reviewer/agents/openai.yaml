@@ -1,0 +1,4 @@
+interface:
+  display_name: "Crypto Research Reviewer"
+  short_description: "Audit crypto research, proofs, and papers"
+  default_prompt: "Use $crypto-research-reviewer to audit this cryptography paper, proof, algorithm, or protocol with evidence-backed findings and acceptance checks."

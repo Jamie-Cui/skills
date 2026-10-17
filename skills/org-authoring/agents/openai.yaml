@@ -1,0 +1,4 @@
+interface:
+  display_name: "Org Authoring"
+  short_description: "Create and repair valid Emacs Org documents"
+  default_prompt: "Use $org-authoring to create or revise this Org document with valid Org markup."

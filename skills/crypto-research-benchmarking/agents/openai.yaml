@@ -1,0 +1,4 @@
+interface:
+  display_name: "Crypto Research Benchmarking"
+  short_description: "Measure cryptographic costs with traceable evidence"
+  default_prompt: "Use $crypto-research-benchmarking to define and run a reproducible cryptographic benchmark with explicit timing and communication accounting."

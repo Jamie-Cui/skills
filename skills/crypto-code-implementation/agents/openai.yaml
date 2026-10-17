@@ -1,0 +1,4 @@
+interface:
+  display_name: "Crypto Code Implementation"
+  short_description: "Implement crypto code with specification fidelity"
+  default_prompt: "Use $crypto-code-implementation to implement, optimize, reproduce, or validate this cryptographic code against its specification while preserving affected security contracts."

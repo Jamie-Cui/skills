@@ -1,0 +1,4 @@
+interface:
+  display_name: "Elisp"
+  short_description: "Write, revise, and review Emacs Lisp safely"
+  default_prompt: "Use $elisp to review or improve this Emacs Lisp code with evidence-backed validation."
