@@ -568,6 +568,57 @@ general editing, VC, package startup and after-init hooks are not replayed."
         (load file nil t t))))
   (agent-skills/key-binding-state "~"))
 
+(declare-function magent-magit-register "magent-magit" ())
+(declare-function magent-magit--commit-payload "magent-magit"
+                  (repo-root branch summary patch))
+(defvar magent-magit-commit-prompt)
+(defvar magent-magit--default-commit-prompt)
+
+(defun agent-skills/reload-magent-magit ()
+  "Reload the managed Magit Actions without generating or applying a message.
+Refresh the default prompt when it was in use; retain customized prompts."
+  (unless (and (boundp '+emacs/repo-directory) (featurep 'magent-magit))
+    (user-error "The managed Magit Actions are not loaded"))
+  (let* ((file (expand-file-name "site-lisp/magent-magit.el" +emacs/repo-directory))
+         (buffer (agent-skills--buffer-visiting-file file))
+         (default-prompt-p (equal magent-magit-commit-prompt
+                                  magent-magit--default-commit-prompt)))
+    (when (and buffer (buffer-modified-p buffer))
+      (user-error "Module has unsaved edits: %s" file))
+    (load file nil nil t)
+    (when default-prompt-p
+      (setq magent-magit-commit-prompt magent-magit--default-commit-prompt))
+    (magent-magit-register)
+    (list :file file :default-prompt-refreshed default-prompt-p)))
+
+(defun agent-skills/magent-magit-commit-input-state (directory)
+  "Report staged patch coverage for DIRECTORY without sending a model request.
+Read only Git's index diff and build the same payload used by commit drafting.
+Return sizes and file counts, never the patch or the current commit draft."
+  (unless (featurep 'magent-magit)
+    (user-error "Magit Actions are not loaded"))
+  (when (file-remote-p directory)
+    (user-error "Use a local repository"))
+  (let* ((default-directory (file-name-as-directory (expand-file-name directory)))
+         (patch
+          (with-temp-buffer
+            (unless (zerop (process-file "git" nil t nil "diff" "--cached" "--patch"
+                                         "--no-ext-diff" "--no-color" "--submodule=diff" "-M"))
+              (error "Could not read the staged patch in %s" default-directory))
+            (string-trim-right (buffer-string))))
+         (payload (magent-magit--commit-payload default-directory "diagnostic" "" patch))
+         (included (if (string-match "^Staged patch:\n" payload)
+                       (substring payload (match-end 0))
+                     (error "Commit payload has no staged patch section"))))
+    (cl-flet ((files (text)
+                (cl-count-if (lambda (line) (string-prefix-p "diff --git " line))
+                             (split-string text "\n" t))))
+      (list :patch-characters (length patch)
+            :included-characters (length included)
+            :staged-files (files patch) :included-files (files included)
+            :complete (equal patch included)))))
+
+
 (cl-defun agent-skills/feature-state (feature-name)
   "Report whether FEATURE-NAME is loaded."
   (let* ((sym (intern-soft feature-name))
@@ -1063,6 +1114,25 @@ Refuse unsaved changes, then save the edit as one undoable change."
                 (save-buffer))
               (list :removed count :file path
                     :modified (buffer-modified-p)))))))))
+
+(defun agent-skills/emacs-input-method-state ()
+  "Report input-method metadata without buffer text or typed input."
+  (with-current-buffer (window-buffer (selected-window))
+    (list :window-system (window-system (selected-frame))
+          :pgtk-default (if (boundp 'pgtk-use-im-context-on-new-connection)
+                            (symbol-value 'pgtk-use-im-context-on-new-connection)
+                          :unbound)
+          :default-input-method default-input-method
+          :current-input-method current-input-method
+          :input-method-function input-method-function
+          :evil-state (bound-and-true-p evil-state)
+          :evil-input-method (bound-and-true-p evil-input-method)
+          :ctrl-space (key-binding (kbd "C-SPC"))
+          :gtk-im-module (getenv "GTK_IM_MODULE")
+          :frames (mapcar (lambda (frame)
+                            (list :window-system (window-system frame)
+                                  :visible (frame-visible-p frame)))
+                          (frame-list)))))
 
 (provide 'agent-skills/emacs)
 ;;; agent-skills-emacs.el ends here
